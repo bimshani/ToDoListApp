@@ -1,12 +1,12 @@
-package lk.kdu.ac.mc.todolistapp.data.database
+package lk.kdu.ac.mc.todolistapp.datasource.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import lk.kdu.ac.mc.todolistapp.data.database.entities.TodoItem
-import lk.kdu.ac.mc.todolistapp.data.database.entities.TodoList
+import lk.kdu.ac.mc.todolistapp.datasource.database.entities.TodoEntry
+import lk.kdu.ac.mc.todolistapp.datasource.database.entities.TodoList
 
 @Dao
-interface TodoDao {
+interface TodoDataAccess {
 
     // TodoList operations
     @Query("SELECT * FROM todo_lists ORDER BY createdAt DESC")
@@ -26,16 +26,16 @@ interface TodoDao {
 
     // TodoItem operations
     @Query("SELECT * FROM todo_items WHERE listId = :listId ORDER BY position ASC")
-    fun getItemsByListId(listId: Long): LiveData<List<TodoItem>>
+    fun getItemsByListId(listId: Long): LiveData<List<TodoEntry>>
 
     @Insert
-    suspend fun insertItem(todoItem: TodoItem): Long
+    suspend fun insertItem(todoEntry: TodoEntry): Long
 
     @Update
-    suspend fun updateItem(todoItem: TodoItem)
+    suspend fun updateItem(todoEntry: TodoEntry)
 
     @Delete
-    suspend fun deleteItem(todoItem: TodoItem)
+    suspend fun deleteItem(todoEntry: TodoEntry)
 
     @Query("UPDATE todo_items SET position = :newPosition WHERE id = :itemId")
     suspend fun updateItemPosition(itemId: Long, newPosition: Int)
@@ -45,5 +45,5 @@ interface TodoDao {
     suspend fun searchLists(searchQuery: String): List<TodoList>
 
     @Query("SELECT * FROM todo_items WHERE description LIKE '%' || :searchQuery || '%'")
-    suspend fun searchItems(searchQuery: String): List<TodoItem>
+    suspend fun searchItems(searchQuery: String): List<TodoEntry>
 }

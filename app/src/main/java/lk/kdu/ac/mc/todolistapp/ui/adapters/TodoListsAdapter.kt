@@ -3,57 +3,66 @@ package lk.kdu.ac.mc.todolistapp.ui.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import lk.kdu.ac.mc.todolistapp.R
-import lk.kdu.ac.mc.todolistapp.data.database.entities.TodoList
-import java.text.SimpleDateFormat
-import java.util.*
+import lk.kdu.ac.mc.todolistapp.data.models.TodoList
 
 class TodoListsAdapter(
-    private val onListClick: (TodoList) -> Unit,
-    private val onDeleteClick: (TodoList) -> Unit,
-    private val onEditClick: (TodoList) -> Unit
-) : ListAdapter<TodoList, TodoListsAdapter.ViewHolder>(DiffCallback()) {
+    private val onItemClick: (TodoList) -> Unit,
+    private val onEditClick: (TodoList) -> Unit,
+    private val onDeleteClick: (TodoList) -> Unit
+) : RecyclerView.Adapter<TodoListsAdapter.ViewHolder>() {
+
+    private var lists = listOf<TodoList>()
+
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val titleText: TextView = itemView.findViewById(R.id.textViewTitle)
+        val itemCountText: TextView = itemView.findViewById(R.id.textViewItemCount)
+        private val editButton: View = itemView.findViewById(R.id.buttonEdit)
+        private val deleteButton: View = itemView.findViewById(R.id.buttonDelete)
+
+        init {
+            itemView.setOnClickListener {
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    onItemClick(lists[adapterPosition])
+                }
+            }
+
+            editButton.setOnClickListener {
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    onEditClick(lists[adapterPosition])
+                }
+            }
+
+            deleteButton.setOnClickListener {
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    onDeleteClick(lists[adapterPosition])
+                }
+            }
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_todo_list, parent, false)
+            .inflate(R.layout.todo_list_entry, parent, false)
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
-    }
-
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val titleTextView: TextView = itemView.findViewById(R.id.textViewListTitle)
-        private val dateTextView: TextView = itemView.findViewById(R.id.textViewListDate)
-        private val editButton: ImageButton = itemView.findViewById(R.id.buttonEdit)
-        private val deleteButton: ImageButton = itemView.findViewById(R.id.buttonDelete)
-
-        fun bind(todoList: TodoList) {
-            titleTextView.text = todoList.title
-
-            val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-            dateTextView.text = dateFormat.format(Date(todoList.createdAt))
-
-            itemView.setOnClickListener { onListClick(todoList) }
-            editButton.setOnClickListener { onEditClick(todoList) }
-            deleteButton.setOnClickListener { onDeleteClick(todoList) }
+        val todoList = lists[position]
+        holder.titleText.text = todoList.title
+        holder.itemCountText.text = when (todoList.itemCount) {
+            0 -> "No items"
+            1 -> "1 item"
+            else -> "${todoList.itemCount} items"
         }
     }
 
-    class DiffCallback : DiffUtil.ItemCallback<TodoList>() {
-        override fun areItemsTheSame(oldItem: TodoList, newItem: TodoList): Boolean {
-            return oldItem.id == newItem.id
-        }
+    override fun getItemCount() = lists.size
 
-        override fun areContentsTheSame(oldItem: TodoList, newItem: TodoList): Boolean {
-            return oldItem == newItem
-        }
+    fun submitList(newLists: List<TodoList>) {
+        lists = newLists
+        notifyDataSetChanged()
     }
 }

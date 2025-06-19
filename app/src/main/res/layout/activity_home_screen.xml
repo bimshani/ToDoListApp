@@ -14,7 +14,7 @@
         android:text="Welcome to [Your Name]'s TO DO List!"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@color/primary_text"
+        android:textColor="@color/text_primary"
         android:gravity="center"
         android:layout_marginBottom="16dp" />
 
@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:text="This App was developed by [Your Name] ([Your Student ID])"
         android:textSize="16sp"
-        android:textColor="@color/secondary_text"
+        android:textColor="@color/text_secondary"
         android:gravity="center"
         android:layout_marginBottom="32dp" />
 

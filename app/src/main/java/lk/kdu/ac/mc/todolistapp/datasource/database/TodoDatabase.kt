@@ -1,20 +1,20 @@
-package lk.kdu.ac.mc.todolistapp.data.database
+package lk.kdu.ac.mc.todolistapp.datasource.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import lk.kdu.ac.mc.todolistapp.data.database.entities.TodoItem
-import lk.kdu.ac.mc.todolistapp.data.database.entities.TodoList
+import lk.kdu.ac.mc.todolistapp.datasource.database.entities.TodoEntry
+import lk.kdu.ac.mc.todolistapp.datasource.database.entities.TodoList
 
 @Database(
-    entities = [TodoList::class, TodoItem::class],
+    entities = [TodoList::class, TodoEntry::class],
     version = 1,
     exportSchema = false
 )
 abstract class TodoDatabase : RoomDatabase() {
 
-    abstract fun todoDao(): TodoDao
+    abstract fun todoDao(): TodoDataAccess
 
     companion object {
         @Volatile

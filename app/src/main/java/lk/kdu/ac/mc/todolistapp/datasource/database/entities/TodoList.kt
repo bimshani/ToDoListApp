@@ -1,4 +1,4 @@
-package lk.kdu.ac.mc.todolistapp.data.database.entities
+package lk.kdu.ac.mc.todolistapp.datasource.database.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

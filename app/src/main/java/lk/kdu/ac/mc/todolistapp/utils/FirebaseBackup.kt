@@ -4,15 +4,15 @@ import android.content.Context
 import android.widget.Toast
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.auth.FirebaseAuth
-import lk.kdu.ac.mc.todolistapp.data.database.TodoDatabase
-import lk.kdu.ac.mc.todolistapp.data.database.entities.TodoItem
-import lk.kdu.ac.mc.todolistapp.data.database.entities.TodoList
+import lk.kdu.ac.mc.todolistapp.datasource.database.TodoDatabase
+import lk.kdu.ac.mc.todolistapp.datasource.database.entities.TodoEntry
+import lk.kdu.ac.mc.todolistapp.datasource.database.entities.TodoList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class FirebaseBackupManager {
+class FirebaseBackup {
 
     private val database = FirebaseDatabase.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -38,7 +38,7 @@ class FirebaseBackupManager {
 
                 // Get all lists and items
                 val lists = todoDao.getAllLists().value ?: emptyList()
-                val allItems = mutableListOf<TodoItem>()
+                val allItems = mutableListOf<TodoEntry>()
 
                 lists.forEach { list ->
                     val items = todoDao.getItemsByListId(list.id).value ?: emptyList()
@@ -117,14 +117,14 @@ class FirebaseBackupManager {
                                 val position = itemSnapshot.child("position").getValue(Int::class.java) ?: 0
                                 val createdAt = itemSnapshot.child("createdAt").getValue(Long::class.java) ?: System.currentTimeMillis()
 
-                                val todoItem = TodoItem(
+                                val todoEntry = TodoEntry(
                                     listId = listId,
                                     description = description,
                                     isCompleted = isCompleted,
                                     position = position,
                                     createdAt = createdAt
                                 )
-                                todoDao.insertItem(todoItem)
+                                todoDao.insertItem(todoEntry)
                             }
 
                             withContext(Dispatchers.Main) {

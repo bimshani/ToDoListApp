@@ -1,4 +1,4 @@
-package lk.kdu.ac.mc.todolistapp.data.database.entities
+package lk.kdu.ac.mc.todolistapp.datasource.database.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -13,7 +13,7 @@ import androidx.room.PrimaryKey
         onDelete = ForeignKey.CASCADE
     )]
 )
-data class TodoItem(
+data class TodoEntry(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val listId: Long,

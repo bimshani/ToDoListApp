@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
+        android:name=".TodoApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -17,7 +18,7 @@
         tools:targetApi="31">
 
         <activity
-            android:name=".ui.activities.MainActivity"
+            android:name=".ui.activities.TodoHomeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,14 +27,9 @@
         </activity>
 
         <activity
-            android:name=".ui.activities.ListsActivity"
+            android:name=".ui.activities.ListCollectionActivity"
             android:exported="false"
-            android:parentActivityName=".ui.activities.MainActivity" />
-
-        <activity
-            android:name=".ui.activities.TodoListDetailActivity"
-            android:exported="false"
-            android:parentActivityName=".ui.activities.ListsActivity" />
+            android:label="My Lists" />
 
     </application>
 

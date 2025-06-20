@@ -5,11 +5,11 @@
     <color name="primary_light">#BBDEFB</color>
     <color name="accent_color">#FF4081</color>
 
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#757575</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#959595</color>
     <color name="text_white">#FFFFFF</color>
 
-    <color name="background_color">#F5F5F5</color>
+    <color name="background_color">#212121</color>
     <color name="card_background">#FFFFFF</color>
     <color name="divider_color">#BDBDBD</color>
 
@@ -19,4 +19,12 @@
 
     <color name="ripple_color">#33000000</color>
     <color name="transparent">#00000000</color>
+
+    <!-- Dark Theme Colors -->
+    <color name="dark_background">#121212</color>
+    <color name="dark_surface">#1E1E1E</color>
+    <color name="dark_card">#252525</color>
+    <color name="dark_accent">#BB86FC</color>
+    <color name="dark_secondary">#03DAC6</color>
+    <color name="dark_error">#CF6679</color>
 </resources>

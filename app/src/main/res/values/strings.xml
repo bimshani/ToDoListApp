@@ -10,4 +10,7 @@
     <string name="search">Search</string>
     <string name="backup">Backup</string>
     <string name="restore">Restore</string>
+    <string name="add_new_task">Add new task</string>
+    <string name="completed_tasks">Completed Tasks</string>
+    <string name="new_task">New Task</string>
 </resources>

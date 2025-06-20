@@ -3,7 +3,7 @@ package lk.kdu.ac.mc.todolistapp.datasource.datamanager
 import androidx.lifecycle.LiveData
 import lk.kdu.ac.mc.todolistapp.datasource.database.TodoDataAccess
 import lk.kdu.ac.mc.todolistapp.datasource.database.entities.TodoEntry
-import lk.kdu.ac.mc.todolistapp.datasource.database.entities.TodoList
+import lk.kdu.ac.mc.todolistapp.data.models.TodoList
 
 class TodoDataRepository(private val todoDataAccess: TodoDataAccess) {
 

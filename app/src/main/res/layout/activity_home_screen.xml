@@ -1,42 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp"
-    android:background="@color/background_color">
+    android:background="?android:windowBackground">
 
-    <TextView
-        android:id="@+id/textViewWelcome"
+    <View
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="-150dp"
+        android:layout_marginEnd="-150dp"
+        android:alpha="0.1"
+        android:background="@drawable/circular_gradient"
+        android:rotation="15" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center_horizontal">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/textViewWelcome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/welcome_message"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textColor="?attr/colorPrimary"
+            android:layout_marginTop="48dp"
+            android:layout_marginBottom="32dp" />
+
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/welcomeAnimation"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="false"
+            app:lottie_rawRes="@raw/welcome_anim" />
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/statsCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:layout_marginTop="16dp"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/pendingTasksCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="40sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorSecondary"/>
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pending Tasks"
+                        android:textSize="16sp"
+                        android:alpha="0.8"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="?attr/colorPrimary"
+                    android:layout_marginHorizontal="16dp"
+                    android:alpha="0.2"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/completedTasksCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="40sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/task_priority_low"/>
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Completed Tasks"
+                        android:textSize="16sp"
+                        android:alpha="0.8"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_add_task"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome to [Your Name]'s TO DO List!"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        android:gravity="center"
-        android:layout_marginBottom="16dp" />
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="32dp"
+        android:text="New Task"
+        app:icon="@drawable/ic_add"
+        app:elevation="4dp"
+        app:backgroundTint="?attr/colorPrimary" />
 
-    <TextView
-        android:id="@+id/textViewDeveloper"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="This App was developed by [Your Name] ([Your Student ID])"
-        android:textSize="16sp"
-        android:textColor="@color/text_secondary"
-        android:gravity="center"
-        android:layout_marginBottom="32dp" />
-
-    <Button
-        android:id="@+id/btnGoToLists"
-        android:layout_width="200dp"
-        android:layout_height="60dp"
-        android:text="Go to Lists"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:background="@drawable/button_background"
-        android:textColor="@android:color/white"
-        android:elevation="4dp" />
-
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import lk.kdu.ac.mc.todolistapp.data.models.TodoList
 import lk.kdu.ac.mc.todolistapp.datasource.database.entities.TodoEntry
-import lk.kdu.ac.mc.todolistapp.datasource.database.entities.TodoList
 
 @Database(
     entities = [TodoList::class, TodoEntry::class],

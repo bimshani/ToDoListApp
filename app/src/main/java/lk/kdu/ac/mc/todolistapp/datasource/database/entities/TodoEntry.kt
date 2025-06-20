@@ -3,6 +3,7 @@ package lk.kdu.ac.mc.todolistapp.datasource.database.entities
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import lk.kdu.ac.mc.todolistapp.data.models.TodoList
 
 @Entity(
     tableName = "todo_items",

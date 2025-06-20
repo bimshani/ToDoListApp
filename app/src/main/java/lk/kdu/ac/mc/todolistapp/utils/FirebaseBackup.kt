@@ -6,7 +6,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.auth.FirebaseAuth
 import lk.kdu.ac.mc.todolistapp.datasource.database.TodoDatabase
 import lk.kdu.ac.mc.todolistapp.datasource.database.entities.TodoEntry
-import lk.kdu.ac.mc.todolistapp.datasource.database.entities.TodoList
+import lk.kdu.ac.mc.todolistapp.data.models.TodoList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,12 +35,11 @@ class FirebaseBackup {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val todoDao = TodoDatabase.getDatabase(context).todoDao()
+                val allItems = mutableListOf<TodoEntry>()
 
                 // Get all lists and items
                 val lists = todoDao.getAllLists().value ?: emptyList()
-                val allItems = mutableListOf<TodoEntry>()
-
-                lists.forEach { list ->
+                lists.forEach { list: TodoList ->
                     val items = todoDao.getItemsByListId(list.id).value ?: emptyList()
                     allItems.addAll(items)
                 }

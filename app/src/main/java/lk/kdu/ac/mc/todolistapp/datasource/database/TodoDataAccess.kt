@@ -2,8 +2,8 @@ package lk.kdu.ac.mc.todolistapp.datasource.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import lk.kdu.ac.mc.todolistapp.data.models.TodoList
 import lk.kdu.ac.mc.todolistapp.datasource.database.entities.TodoEntry
-import lk.kdu.ac.mc.todolistapp.datasource.database.entities.TodoList
 
 @Dao
 interface TodoDataAccess {

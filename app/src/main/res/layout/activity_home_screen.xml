@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:windowBackground">
+    android:background="@drawable/home_screen_gradient">
 
     <View
         android:layout_width="300dp"
@@ -35,7 +35,7 @@
             android:textSize="28sp"
             android:textStyle="bold"
             android:gravity="center"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="#FFFFFF"
             android:layout_marginBottom="40dp" />
 
         <com.airbnb.lottie.LottieAnimationView
@@ -60,7 +60,14 @@
             android:text="Go to Lists"
             android:textSize="26sp"
             android:padding="16dp"
-            app:cornerRadius="16dp" />
+            android:textColor="#FFFFFF"
+            android:alpha="0.85"
+            android:backgroundTint="#1C6AA9"
+            app:strokeColor="#99FFFFFF"
+            app:strokeWidth="1.5dp"
+            app:cornerRadius="20dp"
+            app:rippleColor="#40FFFFFF"
+            app:elevation="8dp" />
 
         <Space
             android:layout_width="match_parent"
@@ -74,7 +81,7 @@
             android:text="This App was developed by NTPGB Upethra - D/BCS/23/0021"
             android:textSize="14sp"
             android:gravity="center"
-            android:textColor="?attr/colorOnBackground"
+            android:textColor="#E0E0E0"
             android:layout_marginBottom="16dp" />
 
     </LinearLayout>

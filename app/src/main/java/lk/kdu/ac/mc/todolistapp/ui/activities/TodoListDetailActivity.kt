@@ -60,7 +60,11 @@ class TodoListDetailActivity : AppCompatActivity() {
 
         adapter = TodoItemAdapter(
             onItemClick = { task: TodoItem -> showEditTaskDialog(task) },
-            onDeleteClick = { task: TodoItem -> showDeleteTaskDialog(task) }
+            onDeleteClick = { task: TodoItem -> showDeleteTaskDialog(task) },
+            onCompletionToggle = { task: TodoItem ->
+                val updatedTask = task.copy(isCompleted = !task.isCompleted)
+                viewModel.updateTask(updatedTask)
+            }
         )
 
         recyclerView.apply {

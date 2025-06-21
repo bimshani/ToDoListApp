@@ -3,6 +3,7 @@ package lk.kdu.ac.mc.todolistapp.ui.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
@@ -13,7 +14,8 @@ import lk.kdu.ac.mc.todolistapp.data.models.TodoItem
 
 class TodoItemAdapter(
     private val onItemClick: (TodoItem) -> Unit,
-    private val onDeleteClick: (TodoItem) -> Unit
+    private val onDeleteClick: (TodoItem) -> Unit,
+    private val onCompletionToggle: (TodoItem) -> Unit
 ) : ListAdapter<TodoItem, TodoItemAdapter.TodoItemViewHolder>(TodoItemDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoItemViewHolder {
@@ -29,16 +31,28 @@ class TodoItemAdapter(
     inner class TodoItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val titleTextView: TextView = itemView.findViewById(R.id.textViewTaskTitle)
         private val descriptionTextView: TextView = itemView.findViewById(R.id.textViewTaskDescription)
+        private val checkBoxDone: CheckBox = itemView.findViewById(R.id.checkBoxTaskDone)
         private val editButton: ImageButton = itemView.findViewById(R.id.buttonEditTask)
         private val deleteButton: ImageButton = itemView.findViewById(R.id.buttonDeleteTask)
 
         fun bind(item: TodoItem) {
             titleTextView.text = item.title
+            if (item.isCompleted) {
+                titleTextView.paintFlags = titleTextView.paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+            } else {
+                titleTextView.paintFlags = titleTextView.paintFlags and android.graphics.Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            }
+
             descriptionTextView.text = item.description
             if (item.description.isBlank()) {
                 descriptionTextView.visibility = View.GONE
             } else {
                 descriptionTextView.visibility = View.VISIBLE
+            }
+
+            checkBoxDone.isChecked = item.isCompleted
+            checkBoxDone.setOnCheckedChangeListener { _, _ ->
+                onCompletionToggle(item)
             }
 
             itemView.setOnClickListener { onItemClick(item) }

@@ -4,10 +4,10 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import lk.kdu.ac.mc.todolistapp.data.database.AppDatabase
+import lk.kdu.ac.mc.todolistapp.data.models.TodoItem
 import lk.kdu.ac.mc.todolistapp.data.models.TodoList
 import lk.kdu.ac.mc.todolistapp.data.repository.TodoListRepository
 
@@ -16,7 +16,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     val allLists: LiveData<List<TodoList>>
 
     // Task statistics
-    private val _taskStats = MutableLiveData<Pair<Int, Int>>() // Pending, Completed
+    private val _taskStats = MutableLiveData<Pair<Int, Int>>()
     val taskStats: LiveData<Pair<Int, Int>> = _taskStats
 
     init {
@@ -51,11 +51,36 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         return repository.searchLists(query)
     }
 
+    fun getTasksForList(listId: Long): LiveData<List<TodoItem>> {
+        return repository.getTasksForList(listId)
+    }
+
+    fun insertTask(task: TodoItem) {
+        viewModelScope.launch {
+            repository.insertTask(task)
+            updateTaskStats()
+        }
+    }
+
+    fun updateTask(task: TodoItem) {
+        viewModelScope.launch {
+            repository.updateTask(task)
+            updateTaskStats()
+        }
+    }
+
+    fun deleteTask(task: TodoItem) {
+        viewModelScope.launch {
+            repository.deleteTask(task)
+            updateTaskStats()
+        }
+    }
+
     private fun updateTaskStats() {
         viewModelScope.launch {
-            // For now, we'll use itemCount as a placeholder for pending tasks
-            // This should be updated when we implement actual task tracking
-            _taskStats.value = Pair(0, 0)
+            val pendingTasks = repository.getPendingTasksCount()
+            val completedTasks = repository.getCompletedTasksCount()
+            _taskStats.value = Pair(pendingTasks, completedTasks)
         }
     }
 }

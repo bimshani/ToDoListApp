@@ -35,6 +35,11 @@
             android:exported="false"
             android:label="My Lists" />
 
+        <activity
+            android:name=".ui.activities.TodoListDetailActivity"
+            android:exported="false"
+            android:label="List Details" />
+
     </application>
 
 </manifest>

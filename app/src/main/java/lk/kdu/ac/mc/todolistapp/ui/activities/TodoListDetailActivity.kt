@@ -1,17 +1,26 @@
 package lk.kdu.ac.mc.todolistapp.ui.activities
 
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.MenuItem
 import android.widget.EditText
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import lk.kdu.ac.mc.todolistapp.R
+import lk.kdu.ac.mc.todolistapp.data.models.TodoItem
+import lk.kdu.ac.mc.todolistapp.ui.adapters.TodoItemAdapter
 import lk.kdu.ac.mc.todolistapp.ui.viewmodels.TodoViewModel
 
 class TodoListDetailActivity : AppCompatActivity() {
     private lateinit var viewModel: TodoViewModel
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: TodoItemAdapter
+    private lateinit var fabAddTask: FloatingActionButton
     private var listId: Long = -1
     private var listTitle: String = ""
 
@@ -30,6 +39,8 @@ class TodoListDetailActivity : AppCompatActivity() {
         setupActionBar()
         setupViewModel()
         setupUI()
+        setupObservers()
+        setupBackHandler()
     }
 
     private fun setupActionBar() {
@@ -44,6 +55,104 @@ class TodoListDetailActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
-        // TODO: Setup RecyclerView and FAB for items
+        recyclerView = findViewById(R.id.recyclerViewTasks)
+        fabAddTask = findViewById(R.id.fabAddTask)
+
+        adapter = TodoItemAdapter(
+            onItemClick = { task: TodoItem -> showEditTaskDialog(task) },
+            onDeleteClick = { task: TodoItem -> showDeleteTaskDialog(task) }
+        )
+
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(this@TodoListDetailActivity)
+            adapter = this@TodoListDetailActivity.adapter
+        }
+
+        fabAddTask.setOnClickListener {
+            showAddTaskDialog()
+        }
+    }
+
+    private fun setupObservers() {
+        viewModel.getTasksForList(listId).observe(this) { tasks: List<TodoItem> ->
+            adapter.submitList(tasks)
+        }
+    }
+
+    private fun setupBackHandler() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finish()
+            }
+        })
+    }
+
+    private fun showAddTaskDialog() {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_task, null)
+        val titleEdit = dialogView.findViewById<EditText>(R.id.editTextTaskTitle)
+        val descriptionEdit = dialogView.findViewById<EditText>(R.id.editTextTaskDescription)
+
+        AlertDialog.Builder(this)
+            .setTitle("Add New Task")
+            .setView(dialogView!!)
+            .setPositiveButton("Add") { dialog: Any, _: Int ->
+                val title = titleEdit.text.toString()
+                val description = descriptionEdit.text.toString()
+                if (title.isNotBlank()) {
+                    val task = TodoItem(
+                        listId = listId,
+                        title = title,
+                        description = description
+                    )
+                    viewModel.insertTask(task)
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showEditTaskDialog(task: TodoItem) {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_task, null)
+        val titleEdit = dialogView.findViewById<EditText>(R.id.editTextTaskTitle)
+        val descriptionEdit = dialogView.findViewById<EditText>(R.id.editTextTaskDescription)
+
+        titleEdit.setText(task.title)
+        descriptionEdit.setText(task.description)
+
+        AlertDialog.Builder(this)
+            .setTitle("Edit Task")
+            .setView(dialogView!!)
+            .setPositiveButton("Save") { dialog: Any, _: Int ->
+                val title = titleEdit.text.toString()
+                val description = descriptionEdit.text.toString()
+                if (title.isNotBlank()) {
+                    val updatedTask = task.copy(
+                        title = title,
+                        description = description
+                    )
+                    viewModel.updateTask(updatedTask)
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showDeleteTaskDialog(task: TodoItem) {
+        AlertDialog.Builder(this)
+            .setTitle("Delete Task")
+            .setMessage("Are you sure you want to delete this task?")
+            .setPositiveButton("Delete") { _: Any, _: Int ->
+                viewModel.deleteTask(task)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            onBackPressedDispatcher.onBackPressed()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

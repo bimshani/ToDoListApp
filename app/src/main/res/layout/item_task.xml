@@ -51,19 +51,22 @@
 
             <ImageButton
                 android:id="@+id/buttonEditTask"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="8dp"
-                android:src="@android:drawable/ic_menu_edit"/>
+                android:src="@drawable/ic_edit"
+                android:tint="@android:color/white"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="Edit task" />
 
             <ImageButton
                 android:id="@+id/buttonDeleteTask"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="8dp"
-                android:src="@android:drawable/ic_menu_delete"/>
+                android:src="@drawable/ic_delete"
+                android:tint="#FF4444"
+                android:contentDescription="Delete task" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -22,6 +22,9 @@ import lk.kdu.ac.mc.todolistapp.R
 import lk.kdu.ac.mc.todolistapp.ui.adapters.TodoListsAdapter
 import lk.kdu.ac.mc.todolistapp.data.models.TodoList
 import lk.kdu.ac.mc.todolistapp.ui.viewmodels.TodoViewModel
+import com.google.android.material.button.MaterialButton
+import lk.kdu.ac.mc.todolistapp.data.models.TodoItem
+import lk.kdu.ac.mc.todolistapp.ui.adapters.InitialTaskAdapter
 
 class ListCollectionActivity : AppCompatActivity() {
     private lateinit var adapter: TodoListsAdapter
@@ -157,32 +160,70 @@ class ListCollectionActivity : AppCompatActivity() {
         }
     }
 
+    private fun getDialogContext() = android.view.ContextThemeWrapper(this, R.style.AlertDialogTheme)
+
     private fun showAddListDialog() {
-        val editText = EditText(this).apply {
-            hint = "Enter list title"
-            setPadding(32, 32, 32, 32)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_create_list_with_tasks, null)
+        val listTitleEdit = dialogView.findViewById<EditText>(R.id.editTextListTitle)
+        val recyclerView = dialogView.findViewById<RecyclerView>(R.id.recyclerViewInitialTasks)
+        val addTaskButton = dialogView.findViewById<MaterialButton>(R.id.buttonAddTask)
+
+        val taskAdapter = InitialTaskAdapter()
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(this@ListCollectionActivity)
+            adapter = taskAdapter
         }
 
-        AlertDialog.Builder(this)
+        addTaskButton.setOnClickListener {
+            taskAdapter.addTask()
+        }
+
+        val dialog = AlertDialog.Builder(getDialogContext())
             .setTitle("Create New List")
-            .setView(editText)
-            .setPositiveButton("Create") { _, _ ->
-                val title = editText.text.toString().trim()
-                if (title.isNotEmpty()) {
-                    viewModel.insertList(title)
-                }
-            }
+            .setView(dialogView)
+            .setPositiveButton("Create", null)
             .setNegativeButton("Cancel", null)
-            .show()
+            .create()
+
+        dialog.setOnShowListener {
+            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            positiveButton.setOnClickListener {
+                val title = listTitleEdit.text.toString().trim()
+                if (title.isEmpty()) {
+                    listTitleEdit.error = "Title is required"
+                    return@setOnClickListener
+                }
+
+                viewModel.insertList(title) { newListId ->
+                    val tasks = taskAdapter.getTasks()
+                    tasks.forEach { task ->
+                        if (task.title.isNotBlank()) {
+                            viewModel.insertTask(
+                                TodoItem(
+                                    listId = newListId,
+                                    title = task.title,
+                                    description = task.description
+                                )
+                            )
+                        }
+                    }
+                }
+                dialog.dismiss()
+            }
+        }
+        dialog.show()
     }
 
     private fun showEditListDialog(todoList: TodoList) {
         val editText = EditText(this).apply {
             setText(todoList.title)
             setPadding(32, 32, 32, 32)
+            setTextColor(getColor(R.color.text_white))
+            setHintTextColor(getColor(R.color.text_secondary))
+            backgroundTintList = android.content.res.ColorStateList.valueOf(getColor(R.color.text_white))
         }
 
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(getDialogContext())
             .setTitle("Edit List")
             .setView(editText)
             .setPositiveButton("Update") { _, _ ->
@@ -196,13 +237,13 @@ class ListCollectionActivity : AppCompatActivity() {
     }
 
     private fun showDeleteConfirmation(todoList: TodoList) {
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(getDialogContext())
             .setTitle("Delete List")
             .setMessage("Are you sure you want to delete '${todoList.title}'?")
-            .setPositiveButton("Delete") { _, _ ->
+            .setPositiveButton("Yes") { _, _ ->
                 viewModel.deleteList(todoList)
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton("No", null)
             .show()
     }
 

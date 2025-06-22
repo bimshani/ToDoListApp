@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import lk.kdu.ac.mc.todolistapp.R
 import lk.kdu.ac.mc.todolistapp.data.models.TodoItem
 import lk.kdu.ac.mc.todolistapp.ui.adapters.TodoItemAdapter
@@ -20,7 +20,7 @@ class TodoListDetailActivity : AppCompatActivity() {
     private lateinit var viewModel: TodoViewModel
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: TodoItemAdapter
-    private lateinit var fabAddTask: FloatingActionButton
+    private lateinit var fabAddTask: ExtendedFloatingActionButton
     private var listId: Long = -1
     private var listTitle: String = ""
 
@@ -91,15 +91,17 @@ class TodoListDetailActivity : AppCompatActivity() {
         })
     }
 
+    private fun getDialogContext() = android.view.ContextThemeWrapper(this, R.style.AlertDialogTheme)
+
     private fun showAddTaskDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_task, null)
         val titleEdit = dialogView.findViewById<EditText>(R.id.editTextTaskTitle)
         val descriptionEdit = dialogView.findViewById<EditText>(R.id.editTextTaskDescription)
 
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(getDialogContext())
             .setTitle("Add New Task")
-            .setView(dialogView!!)
-            .setPositiveButton("Add") { dialog: Any, _: Int ->
+            .setView(dialogView)
+            .setPositiveButton("Add") { _, _ ->
                 val title = titleEdit.text.toString()
                 val description = descriptionEdit.text.toString()
                 if (title.isNotBlank()) {
@@ -123,10 +125,10 @@ class TodoListDetailActivity : AppCompatActivity() {
         titleEdit.setText(task.title)
         descriptionEdit.setText(task.description)
 
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(getDialogContext())
             .setTitle("Edit Task")
-            .setView(dialogView!!)
-            .setPositiveButton("Save") { dialog: Any, _: Int ->
+            .setView(dialogView)
+            .setPositiveButton("Save") { _, _ ->
                 val title = titleEdit.text.toString()
                 val description = descriptionEdit.text.toString()
                 if (title.isNotBlank()) {
@@ -142,13 +144,13 @@ class TodoListDetailActivity : AppCompatActivity() {
     }
 
     private fun showDeleteTaskDialog(task: TodoItem) {
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(getDialogContext())
             .setTitle("Delete Task")
             .setMessage("Are you sure you want to delete this task?")
-            .setPositiveButton("Delete") { _: Any, _: Int ->
+            .setPositiveButton("Yes") { _, _ ->
                 viewModel.deleteTask(task)
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton("No", null)
             .show()
     }
 

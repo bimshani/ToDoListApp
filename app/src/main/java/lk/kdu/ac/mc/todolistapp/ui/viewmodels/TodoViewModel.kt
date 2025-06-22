@@ -26,9 +26,10 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         updateTaskStats()
     }
 
-    fun insertList(title: String) {
+    fun insertList(title: String, onListCreated: (Long) -> Unit) {
         viewModelScope.launch {
-            repository.insertList(title)
+            val newListId = repository.insertList(title)
+            onListCreated(newListId)
             updateTaskStats()
         }
     }

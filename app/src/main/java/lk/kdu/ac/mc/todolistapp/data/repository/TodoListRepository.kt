@@ -16,9 +16,9 @@ class TodoListRepository(private val todoListDao: TodoListDao) {
         }
     }
 
-    suspend fun insertList(title: String) {
+    suspend fun insertList(title: String): Long {
         val entity = TodoListEntity(title = title)
-        todoListDao.insert(entity)
+        return todoListDao.insert(entity)
     }
 
     suspend fun updateList(todoList: TodoList) {

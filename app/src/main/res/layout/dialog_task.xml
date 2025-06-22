@@ -12,6 +12,9 @@
         android:hint="Task Title"
         android:inputType="text"
         android:minHeight="48dp"
+        android:textColor="@color/text_white"
+        android:textColorHint="@color/text_secondary"
+        android:backgroundTint="@color/text_white"
         android:layout_marginBottom="8dp"/>
 
     <EditText
@@ -20,8 +23,11 @@
         android:layout_height="wrap_content"
         android:hint="Description"
         android:inputType="textMultiLine"
-        android:minHeight="48dp"
         android:gravity="top"
+        android:minHeight="48dp"
+        android:textColor="@color/text_white"
+        android:textColorHint="@color/text_secondary"
+        android:backgroundTint="@color/text_white"
         android:lines="3"/>
 
 </LinearLayout>

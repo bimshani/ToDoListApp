@@ -17,4 +17,5 @@
 
     <color name="text_primary">#FFFFFF</color>
     <color name="text_secondary">#959595</color>
+    <color name="dark_blue">#1976D2</color>
 </resources>

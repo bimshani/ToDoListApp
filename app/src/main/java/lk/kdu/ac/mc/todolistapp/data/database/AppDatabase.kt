@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import lk.kdu.ac.mc.todolistapp.data.database.dao.TodoListDao
 import lk.kdu.ac.mc.todolistapp.data.database.entities.TodoListEntity
 import lk.kdu.ac.mc.todolistapp.data.database.entities.TodoItemEntity
@@ -13,7 +15,7 @@ import lk.kdu.ac.mc.todolistapp.data.database.entities.TodoItemEntity
         TodoListEntity::class,
         TodoItemEntity::class
     ],
-    version = 2
+    version = 3
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun todoListDao(): TodoListDao
@@ -28,8 +30,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "todo_app_database"
-                ).fallbackToDestructiveMigration()
-                 .build()
+                )
+                .fallbackToDestructiveMigration() // This will recreate tables if migration fails
+                .build()
                 INSTANCE = instance
                 instance
             }

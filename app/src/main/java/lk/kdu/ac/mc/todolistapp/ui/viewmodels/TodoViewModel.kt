@@ -65,7 +65,10 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateTask(task: TodoItem) {
         viewModelScope.launch {
-            repository.updateTask(task)
+            // Get the existing task to preserve its position if not provided
+            val existingTask = repository.getTaskById(task.id)
+            val updatedTask = task.copy(position = existingTask?.position ?: task.position)
+            repository.updateTask(updatedTask)
             updateTaskStats()
         }
     }
@@ -74,6 +77,16 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             repository.deleteTask(task)
             updateTaskStats()
+        }
+    }
+
+    fun updateTaskOrder(tasks: List<TodoItem>) {
+        viewModelScope.launch {
+            tasks.forEachIndexed { index, task ->
+                if (task.position != index) {
+                    repository.updateTask(task.copy(position = index))
+                }
+            }
         }
     }
 

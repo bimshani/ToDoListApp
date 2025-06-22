@@ -11,12 +11,45 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import lk.kdu.ac.mc.todolistapp.R
 import lk.kdu.ac.mc.todolistapp.data.models.TodoItem
+import lk.kdu.ac.mc.todolistapp.ui.utils.ItemMoveCallback
+import java.util.Collections
 
 class TodoItemAdapter(
     private val onItemClick: (TodoItem) -> Unit,
     private val onDeleteClick: (TodoItem) -> Unit,
-    private val onCompletionToggle: (TodoItem) -> Unit
-) : ListAdapter<TodoItem, TodoItemAdapter.TodoItemViewHolder>(TodoItemDiffCallback()) {
+    private val onCompletionToggle: (TodoItem) -> Unit,
+    private val onItemsReordered: (List<TodoItem>) -> Unit
+) : ListAdapter<TodoItem, TodoItemAdapter.TodoItemViewHolder>(TodoItemDiffCallback()),
+    ItemMoveCallback.ItemTouchHelperContract {
+
+    private var items = mutableListOf<TodoItem>()
+
+    override fun submitList(list: List<TodoItem>?) {
+        super.submitList(list)
+        items = list?.toMutableList() ?: mutableListOf()
+    }
+
+    override fun onRowMoved(fromPosition: Int, toPosition: Int) {
+        if (fromPosition < toPosition) {
+            for (i in fromPosition until toPosition) {
+                Collections.swap(items, i, i + 1)
+            }
+        } else {
+            for (i in fromPosition downTo toPosition + 1) {
+                Collections.swap(items, i, i - 1)
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition)
+
+        // Update positions for all affected items
+        items.forEachIndexed { index, item ->
+            items[index] = item.copy(position = index)
+        }
+    }
+
+    override fun onRowClear() {
+        onItemsReordered(items.toList())
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoItemViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -52,7 +85,11 @@ class TodoItemAdapter(
 
             checkBoxDone.isChecked = item.isCompleted
             checkBoxDone.setOnCheckedChangeListener { _, _ ->
-                onCompletionToggle(item)
+                val updatedTask = item.copy(
+                    isCompleted = !item.isCompleted,
+                    position = item.position  // Preserve the position
+                )
+                onCompletionToggle(updatedTask)
             }
 
             itemView.setOnClickListener { onItemClick(item) }

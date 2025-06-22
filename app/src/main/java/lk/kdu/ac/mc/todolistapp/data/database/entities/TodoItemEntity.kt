@@ -2,9 +2,11 @@ package lk.kdu.ac.mc.todolistapp.data.database.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "todo_items",
+@Entity(
+    tableName = "todo_items",
     foreignKeys = [
         ForeignKey(
             entity = TodoListEntity::class,
@@ -12,7 +14,8 @@ import androidx.room.PrimaryKey
             childColumns = ["listId"],
             onDelete = ForeignKey.CASCADE
         )
-    ]
+    ],
+    indices = [Index("listId"), Index("position")]
 )
 data class TodoItemEntity(
     @PrimaryKey(autoGenerate = true)
@@ -21,5 +24,6 @@ data class TodoItemEntity(
     val title: String,
     val description: String = "",
     val isCompleted: Boolean = false,
+    val position: Int = 0,
     val createdAt: Long = System.currentTimeMillis()
 )

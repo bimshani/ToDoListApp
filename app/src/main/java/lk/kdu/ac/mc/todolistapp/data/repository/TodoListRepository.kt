@@ -43,7 +43,9 @@ class TodoListRepository(private val todoListDao: TodoListDao) {
     }
 
     suspend fun insertTask(task: TodoItem) {
-        todoListDao.insertTask(task.toEntity())
+        val maxPosition = todoListDao.getMaxPositionForList(task.listId) ?: -1
+        val taskWithPosition = task.toEntity().copy(position = maxPosition + 1)
+        todoListDao.insertTask(taskWithPosition)
         updateListItemCount(task.listId)
     }
 
@@ -69,6 +71,10 @@ class TodoListRepository(private val todoListDao: TodoListDao) {
         todoListDao.updateListItemCount(listId, count)
     }
 
+    suspend fun getTaskById(taskId: Long): TodoItem? {
+        return todoListDao.getTaskById(taskId)?.toModel()
+    }
+
     // Entity conversion methods
     private fun TodoItemEntity.toModel() = TodoItem(
         id = id,
@@ -76,6 +82,7 @@ class TodoListRepository(private val todoListDao: TodoListDao) {
         title = title,
         description = description,
         isCompleted = isCompleted,
+        position = position,
         createdAt = createdAt
     )
 
@@ -85,6 +92,7 @@ class TodoListRepository(private val todoListDao: TodoListDao) {
         title = title,
         description = description,
         isCompleted = isCompleted,
+        position = position,
         createdAt = createdAt
     )
 

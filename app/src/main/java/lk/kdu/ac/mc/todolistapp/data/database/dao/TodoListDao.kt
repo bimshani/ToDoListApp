@@ -24,8 +24,11 @@ interface TodoListDao {
     fun searchLists(query: String): LiveData<List<TodoListEntity>>
 
     // Task operations
-    @Query("SELECT * FROM todo_items WHERE listId = :listId ORDER BY createdAt DESC")
+    @Query("SELECT * FROM todo_items WHERE listId = :listId ORDER BY position ASC, createdAt DESC")
     fun getTasksForList(listId: Long): LiveData<List<TodoItemEntity>>
+
+    @Query("SELECT MAX(position) FROM todo_items WHERE listId = :listId")
+    suspend fun getMaxPositionForList(listId: Long): Int?
 
     @Insert
     suspend fun insertTask(task: TodoItemEntity): Long
@@ -47,4 +50,7 @@ interface TodoListDao {
 
     @Query("UPDATE todo_lists SET itemCount = :count WHERE id = :listId")
     suspend fun updateListItemCount(listId: Long, count: Int)
+
+    @Query("SELECT * FROM todo_items WHERE id = :taskId LIMIT 1")
+    suspend fun getTaskById(taskId: Long): TodoItemEntity?
 }

@@ -4,16 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.widget.EditText
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import lk.kdu.ac.mc.todolistapp.R
 import lk.kdu.ac.mc.todolistapp.data.models.TodoItem
 import lk.kdu.ac.mc.todolistapp.ui.adapters.TodoItemAdapter
+import lk.kdu.ac.mc.todolistapp.ui.utils.ItemMoveCallback
 import lk.kdu.ac.mc.todolistapp.ui.viewmodels.TodoViewModel
 
 class TodoListDetailActivity : AppCompatActivity() {
@@ -21,6 +24,7 @@ class TodoListDetailActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: TodoItemAdapter
     private lateinit var fabAddTask: ExtendedFloatingActionButton
+    private lateinit var listTitleText: TextView
     private var listId: Long = -1
     private var listTitle: String = ""
 
@@ -57,6 +61,9 @@ class TodoListDetailActivity : AppCompatActivity() {
     private fun setupUI() {
         recyclerView = findViewById(R.id.recyclerViewTasks)
         fabAddTask = findViewById(R.id.fabAddTask)
+        listTitleText = findViewById(R.id.textViewListTitle)
+
+        listTitleText.text = listTitle
 
         adapter = TodoItemAdapter(
             onItemClick = { task: TodoItem -> showEditTaskDialog(task) },
@@ -64,6 +71,9 @@ class TodoListDetailActivity : AppCompatActivity() {
             onCompletionToggle = { task: TodoItem ->
                 val updatedTask = task.copy(isCompleted = !task.isCompleted)
                 viewModel.updateTask(updatedTask)
+            },
+            onItemsReordered = { tasks ->
+                viewModel.updateTaskOrder(tasks)
             }
         )
 
@@ -71,6 +81,11 @@ class TodoListDetailActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@TodoListDetailActivity)
             adapter = this@TodoListDetailActivity.adapter
         }
+
+        // Set up drag and drop
+        val callback = ItemMoveCallback(adapter)
+        val touchHelper = ItemTouchHelper(callback)
+        touchHelper.attachToRecyclerView(recyclerView)
 
         fabAddTask.setOnClickListener {
             showAddTaskDialog()

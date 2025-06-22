@@ -6,5 +6,6 @@ data class TodoItem(
     val title: String,
     val description: String = "",
     val isCompleted: Boolean = false,
+    val position: Int = 0,
     val createdAt: Long = System.currentTimeMillis()
 )

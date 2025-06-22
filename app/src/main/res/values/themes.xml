@@ -75,4 +75,14 @@
         <item name="android:textColor">@color/text_white</item>
     </style>
 
+    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <!-- Text color for the search query -->
+        <item name="android:textColor">@android:color/white</item>
+        <!-- Hint text color -->
+        <item name="android:textColorHint">#80FFFFFF</item>
+        <!-- Search icon color -->
+        <item name="android:tint">@android:color/white</item>
+        <!-- Close icon color -->
+        <item name="android:colorControlNormal">@android:color/white</item>
+    </style>
 </resources>

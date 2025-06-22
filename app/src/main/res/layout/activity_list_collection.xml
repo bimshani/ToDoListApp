@@ -20,9 +20,24 @@
             android:textColor="@android:color/white"
             android:layout_marginTop="32dp"
             android:layout_marginStart="16dp"
-            android:alpha="0"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="@drawable/search_background"
+            android:elevation="4dp"
+            app:queryHint="Search in lists..."
+            app:iconifiedByDefault="false"
+            app:queryBackground="@null"
+            app:searchIcon="@drawable/ic_search"
+            android:theme="@style/SearchViewStyle"
+            app:layout_constraintTop_toBottomOf="@id/titleText"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewLists"
@@ -30,9 +45,7 @@
             android:layout_height="0dp"
             android:padding="8dp"
             android:clipToPadding="false"
-            android:layout_marginTop="8dp"
-            android:overScrollMode="never"
-            app:layout_constraintTop_toBottomOf="@id/titleText"
+            app:layout_constraintTop_toBottomOf="@id/searchView"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
         <TextView

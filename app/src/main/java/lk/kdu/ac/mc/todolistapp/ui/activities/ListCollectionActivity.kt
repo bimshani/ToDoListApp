@@ -34,6 +34,8 @@ class ListCollectionActivity : AppCompatActivity() {
     private lateinit var emptyView: TextView
     private lateinit var titleText: TextView
     private lateinit var fabAddList: ExtendedFloatingActionButton
+    private lateinit var searchView: androidx.appcompat.widget.SearchView
+    private var originalLists: List<TodoList> = listOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,9 +53,13 @@ class ListCollectionActivity : AppCompatActivity() {
         emptyView = findViewById(R.id.emptyView)
         titleText = findViewById(R.id.titleText)
         fabAddList = findViewById(R.id.fabAddList)
+        searchView = findViewById(R.id.searchView)
 
         // Initialize ViewModel
         viewModel = ViewModelProvider(this)[TodoViewModel::class.java]
+
+        // Set up search functionality
+        setupSearch()
 
         // Set click listener for FAB
         fabAddList.setOnClickListener {
@@ -64,6 +70,40 @@ class ListCollectionActivity : AppCompatActivity() {
                 showAddListDialog()
             }, 100)
         }
+    }
+
+    private fun setupSearch() {
+        // Customize SearchView appearance
+        val searchEditText = searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
+        searchEditText?.apply {
+            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 16f)
+            setPadding(16, 8, 16, 8)
+        }
+
+        searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                filterLists(newText)
+                return true
+            }
+        })
+    }
+
+    private fun filterLists(query: String?) {
+        if (query.isNullOrBlank()) {
+            adapter.submitList(originalLists)
+            updateEmptyState(originalLists)
+            return
+        }
+
+        val filteredList = originalLists.filter { todoList ->
+            todoList.title.contains(query, ignoreCase = true)
+        }
+        adapter.submitList(filteredList)
+        updateEmptyState(filteredList)
     }
 
     private fun startAnimations() {
@@ -155,8 +195,14 @@ class ListCollectionActivity : AppCompatActivity() {
     private fun setupObservers() {
         // Observe lists using the allLists property
         viewModel.allLists.observe(this) { lists ->
-            adapter.submitList(lists)
-            updateEmptyState(lists)
+            originalLists = lists
+            if (!searchView.query.isNullOrBlank()) {
+                filterLists(searchView.query.toString())
+            } else {
+                adapter.submitList(lists)
+                updateEmptyState(lists)
+            }
+            progressBar.visibility = View.GONE
         }
     }
 

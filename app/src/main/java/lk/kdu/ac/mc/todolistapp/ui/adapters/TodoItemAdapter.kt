@@ -1,5 +1,6 @@
 package lk.kdu.ac.mc.todolistapp.ui.adapters
 
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -84,36 +85,39 @@ class TodoItemAdapter(
 
         // Sets up all the views with task data and click listeners
         fun bind(item: TodoItem) {
-            // Set up the title and strikethrough if completed
+            // Set text content
             titleTextView.text = item.title
-            if (item.isCompleted) {
-                titleTextView.paintFlags = titleTextView.paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
-            } else {
-                titleTextView.paintFlags = titleTextView.paintFlags and android.graphics.Paint.STRIKE_THRU_TEXT_FLAG.inv()
-            }
-
-            // Only show description if it's not empty
             descriptionTextView.text = item.description
-            if (item.description.isBlank()) {
-                descriptionTextView.visibility = View.GONE
-            } else {
-                descriptionTextView.visibility = View.VISIBLE
-            }
 
-            // Handle completion checkbox
+            // Handle completion state
             checkBoxDone.isChecked = item.isCompleted
-            checkBoxDone.setOnCheckedChangeListener { _, _ ->
-                val updatedTask = item.copy(
-                    isCompleted = !item.isCompleted,
-                    position = item.position  // Keep the task's position in the list
-                )
-                onCompletionToggle(updatedTask)
+            updateStrikeThrough(item.isCompleted)
+
+            // Show/hide description
+            descriptionTextView.visibility = if (item.description.isBlank()) {
+                View.GONE
+            } else {
+                View.VISIBLE
             }
 
-            // Set up click listeners for editing and deleting
+            // Set up checkbox click listener
+            checkBoxDone.setOnClickListener {
+                onCompletionToggle(item)
+                updateStrikeThrough(checkBoxDone.isChecked)
+            }
+
+            // Other click listeners
             itemView.setOnClickListener { onItemClick(item) }
             editButton.setOnClickListener { onItemClick(item) }
             deleteButton.setOnClickListener { onDeleteClick(item) }
+        }
+
+        private fun updateStrikeThrough(isCompleted: Boolean) {
+            val flag = if (isCompleted) Paint.STRIKE_THRU_TEXT_FLAG else 0
+            titleTextView.paintFlags = flag
+            if (descriptionTextView.visibility == View.VISIBLE) {
+                descriptionTextView.paintFlags = flag
+            }
         }
     }
 }

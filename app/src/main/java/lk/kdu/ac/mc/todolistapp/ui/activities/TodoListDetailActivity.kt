@@ -83,17 +83,32 @@ class TodoListDetailActivity : AppCompatActivity() {
         listTitleText.text = listTitle
 
         // Set up the task list adapter
+        setupAdapter()
+
+        // Show "Add Task" dialog when the button is clicked
+        fabAddTask.setOnClickListener {
+            showAddTaskDialog()
+        }
+    }
+
+    // Setup adapter with completion toggle handling
+    private fun setupAdapter() {
         adapter = TodoItemAdapter(
             onItemClick = { task -> showEditTaskDialog(task) },        // Edit when clicked
             onDeleteClick = { task -> showDeleteTaskDialog(task) },    // Delete when trash clicked
             onCompletionToggle = { task ->                            // Toggle done or not done
-                val updatedTask = task.copy(isCompleted = !task.isCompleted)
-                viewModel.updateTask(updatedTask)
+                // Update task completion state in database
+                viewModel.updateTask(task.copy(isCompleted = !task.isCompleted))
             },
             onItemsReordered = { tasks ->                            // Save new task order
                 viewModel.updateTaskOrder(tasks)
             }
         )
+
+        // Enable drag-and-drop reordering
+        val callback = ItemMoveCallback(adapter)
+        val touchHelper = ItemTouchHelper(callback)
+        touchHelper.attachToRecyclerView(recyclerView)
 
         // Set up the scrolling task list
         recyclerView.apply {
@@ -101,14 +116,9 @@ class TodoListDetailActivity : AppCompatActivity() {
             adapter = this@TodoListDetailActivity.adapter
         }
 
-        // Enable drag-and-drop reordering
-        val callback = ItemMoveCallback(adapter)
-        val touchHelper = ItemTouchHelper(callback)
-        touchHelper.attachToRecyclerView(recyclerView)
-
-        // Show "Add Task" dialog when the button is clicked
-        fabAddTask.setOnClickListener {
-            showAddTaskDialog()
+        // Observe tasks and update UI
+        viewModel.getTasksForList(listId).observe(this) { tasks ->
+            adapter.submitList(tasks)  // Update the list whenever tasks change
         }
     }
 

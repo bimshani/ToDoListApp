@@ -16,7 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.airbnb.lottie.LottieAnimationView
 import lk.kdu.ac.mc.todolistapp.R
 import lk.kdu.ac.mc.todolistapp.ui.adapters.TodoListsAdapter
@@ -30,7 +30,7 @@ class ListCollectionActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var emptyView: TextView
     private lateinit var titleText: TextView
-    private lateinit var fabAddList: FloatingActionButton
+    private lateinit var fabAddList: ExtendedFloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,27 +54,23 @@ class ListCollectionActivity : AppCompatActivity() {
 
         // Set click listener for FAB
         fabAddList.setOnClickListener {
-            // Add bounce animation to FAB when clicked
-            fabAddList.animate()
-                .scaleX(0.85f)
-                .scaleY(0.85f)
-                .setDuration(50)
-                .withEndAction {
-                    fabAddList.animate()
-                        .scaleX(1f)
-                        .scaleY(1f)
-                        .setDuration(100)
-                        .start()
-                    showAddListDialog()
-                }
-                .start()
+            // Add shrink and extend animation to FAB when clicked
+            fabAddList.shrink()
+            fabAddList.postDelayed({
+                fabAddList.extend()
+                showAddListDialog()
+            }, 100)
         }
     }
 
     private fun startAnimations() {
-        // Animate title text
+        // Reset initial states
         titleText.alpha = 0f
         titleText.translationY = -50f
+        fabAddList.scaleX = 0f
+        fabAddList.scaleY = 0f
+
+        // Animate title
         titleText.animate()
             .alpha(1f)
             .translationY(0f)
@@ -82,8 +78,6 @@ class ListCollectionActivity : AppCompatActivity() {
             .start()
 
         // Animate FAB
-        fabAddList.scaleX = 0f
-        fabAddList.scaleY = 0f
         fabAddList.animate()
             .scaleX(1f)
             .scaleY(1f)

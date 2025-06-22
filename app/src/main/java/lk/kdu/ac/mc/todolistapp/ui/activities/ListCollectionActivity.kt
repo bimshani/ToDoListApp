@@ -4,13 +4,20 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.animation.AnimationUtils
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.OvershootInterpolator
 import android.widget.EditText
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.airbnb.lottie.LottieAnimationView
 import lk.kdu.ac.mc.todolistapp.R
 import lk.kdu.ac.mc.todolistapp.ui.adapters.TodoListsAdapter
 import lk.kdu.ac.mc.todolistapp.data.models.TodoList
@@ -19,55 +26,140 @@ import lk.kdu.ac.mc.todolistapp.ui.viewmodels.TodoViewModel
 class ListCollectionActivity : AppCompatActivity() {
     private lateinit var adapter: TodoListsAdapter
     private lateinit var viewModel: TodoViewModel
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var progressBar: ProgressBar
+    private lateinit var emptyView: TextView
+    private lateinit var titleText: TextView
+    private lateinit var fabAddList: FloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_collection)
 
-        // Set up the toolbar
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "My Lists"
+        initializeViews()
+        setupRecyclerView()
+        setupObservers()
+        startAnimations()
+    }
+
+    private fun initializeViews() {
+        recyclerView = findViewById(R.id.recyclerViewLists)
+        progressBar = findViewById(R.id.progressBar)
+        emptyView = findViewById(R.id.emptyView)
+        titleText = findViewById(R.id.titleText)
+        fabAddList = findViewById(R.id.fabAddList)
 
         // Initialize ViewModel
         viewModel = ViewModelProvider(this)[TodoViewModel::class.java]
 
-        setupRecyclerView()
-        setupFab()
-
-        // Check if we should show the create dialog
-        if (intent.getBooleanExtra("SHOW_CREATE_DIALOG", false)) {
-            showAddListDialog()
+        // Set click listener for FAB
+        fabAddList.setOnClickListener {
+            // Add bounce animation to FAB when clicked
+            fabAddList.animate()
+                .scaleX(0.85f)
+                .scaleY(0.85f)
+                .setDuration(50)
+                .withEndAction {
+                    fabAddList.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(100)
+                        .start()
+                    showAddListDialog()
+                }
+                .start()
         }
+    }
 
-        // Observe lists using the allLists property
-        viewModel.allLists.observe(this) { lists ->
-            adapter.submitList(lists)
+    private fun startAnimations() {
+        // Animate title text
+        titleText.alpha = 0f
+        titleText.translationY = -50f
+        titleText.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(300)
+            .start()
+
+        // Animate FAB
+        fabAddList.scaleX = 0f
+        fabAddList.scaleY = 0f
+        fabAddList.animate()
+            .scaleX(1f)
+            .scaleY(1f)
+            .setDuration(200)
+            .setStartDelay(300)
+            .setInterpolator(OvershootInterpolator(1.5f))
+            .start()
+    }
+
+    private fun updateEmptyState(lists: List<TodoList>) {
+        if (lists.isEmpty()) {
+            recyclerView.visibility = View.GONE
+            emptyView.apply {
+                alpha = 0f
+                visibility = View.VISIBLE
+                animate()
+                    .alpha(1f)
+                    .setDuration(200)
+                    .start()
+            }
+        } else {
+            emptyView.visibility = View.GONE
+            recyclerView.apply {
+                alpha = 0f
+                visibility = View.VISIBLE
+                animate()
+                    .alpha(1f)
+                    .setDuration(200)
+                    .start()
+            }
         }
     }
 
     private fun setupRecyclerView() {
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewLists)
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = TodoListsAdapter(
             onItemClick = { todoList ->
-                startActivity(Intent(this, TodoListDetailActivity::class.java).apply {
-                    putExtra("LIST_ID", todoList.id)
-                    putExtra("LIST_TITLE", todoList.title)
-                })
+                // Animate the clicked item
+                recyclerView.findViewHolderForItemId(todoList.id.toLong())?.itemView?.let { view ->
+                    view.animate()
+                        .scaleX(0.95f)
+                        .scaleY(0.95f)
+                        .setDuration(100)
+                        .withEndAction {
+                            view.animate()
+                                .scaleX(1f)
+                                .scaleY(1f)
+                                .setDuration(100)
+                                .withEndAction {
+                                    navigateToListDetail(todoList)
+                                }
+                                .start()
+                        }
+                        .start()
+                } ?: navigateToListDetail(todoList)
             },
-            onEditClick = { todoList ->
-                showEditListDialog(todoList)
-            },
-            onDeleteClick = { todoList ->
-                showDeleteConfirmation(todoList)
-            }
+            onEditClick = { todoList -> showEditListDialog(todoList) },
+            onDeleteClick = { todoList -> showDeleteConfirmation(todoList) }
         )
         recyclerView.adapter = adapter
     }
 
-    private fun setupFab() {
-        findViewById<FloatingActionButton>(R.id.fabAddList).setOnClickListener {
-            showAddListDialog()
+    private fun navigateToListDetail(todoList: TodoList) {
+        val intent = Intent(this, TodoListDetailActivity::class.java).apply {
+            putExtra("LIST_ID", todoList.id)
+            putExtra("LIST_TITLE", todoList.title)
+        }
+        startActivity(intent)
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+    }
+
+    private fun setupObservers() {
+        // Observe lists using the allLists property
+        viewModel.allLists.observe(this) { lists ->
+            adapter.submitList(lists)
+            updateEmptyState(lists)
         }
     }
 
@@ -123,5 +215,10 @@ class ListCollectionActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
     }
 }

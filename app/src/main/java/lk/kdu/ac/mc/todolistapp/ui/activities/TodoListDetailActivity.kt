@@ -19,12 +19,23 @@ import lk.kdu.ac.mc.todolistapp.ui.adapters.TodoItemAdapter
 import lk.kdu.ac.mc.todolistapp.ui.utils.ItemMoveCallback
 import lk.kdu.ac.mc.todolistapp.ui.viewmodels.TodoViewModel
 
+/**
+ * This screen shows all tasks in a to do list
+ * - See all tasks in the list
+ * - Add new tasks
+ * - Edit existing tasks
+ * - Mark tasks as done/undone
+ * - Reorder tasks by dragging them
+ */
 class TodoListDetailActivity : AppCompatActivity() {
-    private lateinit var viewModel: TodoViewModel
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: TodoItemAdapter
-    private lateinit var fabAddTask: ExtendedFloatingActionButton
-    private lateinit var listTitleText: TextView
+    // UI elements we'll work with
+    private lateinit var viewModel: TodoViewModel          // Handles data operations
+    private lateinit var recyclerView: RecyclerView       // Shows the list of tasks
+    private lateinit var adapter: TodoItemAdapter         // Manages task items in the list
+    private lateinit var fabAddTask: ExtendedFloatingActionButton  // new task button
+    private lateinit var listTitleText: TextView          // Shows the list's title
+
+    // Info about which list is viewing
     private var listId: Long = -1
     private var listTitle: String = ""
 
@@ -32,82 +43,95 @@ class TodoListDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_todo_list_detail)
 
+        // Get the list info that was passed to the screen
         listId = intent.getLongExtra("LIST_ID", -1)
         listTitle = intent.getStringExtra("LIST_TITLE") ?: ""
 
+        // If no valid list ID, close the screen
         if (listId == -1L) {
             finish()
             return
         }
 
-        setupActionBar()
-        setupViewModel()
-        setupUI()
-        setupObservers()
-        setupBackHandler()
+        // Setup everything in order
+        setupActionBar()      // 1. Set up the top bar
+        setupViewModel()      // 2. Get our data handler ready
+        setupUI()            // 3. Set up all UI elements
+        setupObservers()     // 4. Watch for task updates
+        setupBackHandler()   // 5. Handle back button
     }
 
+    // 1. Set up the top bar with list title and back button
     private fun setupActionBar() {
         supportActionBar?.apply {
             title = listTitle
-            setDisplayHomeAsUpEnabled(true)
+            setDisplayHomeAsUpEnabled(true)  // Show back button
         }
     }
 
+    // 2. Get data handler ready
     private fun setupViewModel() {
         viewModel = ViewModelProvider(this)[TodoViewModel::class.java]
     }
 
+    // 3. Set up all the screen's UI elements
     private fun setupUI() {
+        // Find our UI elements
         recyclerView = findViewById(R.id.recyclerViewTasks)
         fabAddTask = findViewById(R.id.fabAddTask)
         listTitleText = findViewById(R.id.textViewListTitle)
-
         listTitleText.text = listTitle
 
+        // Set up the task list adapter
         adapter = TodoItemAdapter(
-            onItemClick = { task: TodoItem -> showEditTaskDialog(task) },
-            onDeleteClick = { task: TodoItem -> showDeleteTaskDialog(task) },
-            onCompletionToggle = { task: TodoItem ->
+            onItemClick = { task -> showEditTaskDialog(task) },        // Edit when clicked
+            onDeleteClick = { task -> showDeleteTaskDialog(task) },    // Delete when trash clicked
+            onCompletionToggle = { task ->                            // Toggle done or not done
                 val updatedTask = task.copy(isCompleted = !task.isCompleted)
                 viewModel.updateTask(updatedTask)
             },
-            onItemsReordered = { tasks ->
+            onItemsReordered = { tasks ->                            // Save new task order
                 viewModel.updateTaskOrder(tasks)
             }
         )
 
+        // Set up the scrolling task list
         recyclerView.apply {
             layoutManager = LinearLayoutManager(this@TodoListDetailActivity)
             adapter = this@TodoListDetailActivity.adapter
         }
 
-        // Set up drag and drop
+        // Enable drag-and-drop reordering
         val callback = ItemMoveCallback(adapter)
         val touchHelper = ItemTouchHelper(callback)
         touchHelper.attachToRecyclerView(recyclerView)
 
+        // Show "Add Task" dialog when the button is clicked
         fabAddTask.setOnClickListener {
             showAddTaskDialog()
         }
     }
 
+    // Step 4: Watch for changes in our tasks
     private fun setupObservers() {
-        viewModel.getTasksForList(listId).observe(this) { tasks: List<TodoItem> ->
-            adapter.submitList(tasks)
+        viewModel.getTasksForList(listId).observe(this) { tasks ->
+            adapter.submitList(tasks)  // Update the list whenever tasks change
         }
     }
 
+    // Step 5: Handle back button presses
     private fun setupBackHandler() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                finish()
+                finish()  // Just close the screen
             }
         })
     }
 
+    // Get the right theme for our dialogs
     private fun getDialogContext() = android.view.ContextThemeWrapper(this, R.style.AlertDialogTheme)
 
+    // Show dialog to add a new task
     private fun showAddTaskDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_task, null)
         val titleEdit = dialogView.findViewById<EditText>(R.id.editTextTaskTitle)
@@ -132,11 +156,13 @@ class TodoListDetailActivity : AppCompatActivity() {
             .show()
     }
 
+    // Show dialog to edit an existing task
     private fun showEditTaskDialog(task: TodoItem) {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_task, null)
         val titleEdit = dialogView.findViewById<EditText>(R.id.editTextTaskTitle)
         val descriptionEdit = dialogView.findViewById<EditText>(R.id.editTextTaskDescription)
 
+        // Fill in existing task details
         titleEdit.setText(task.title)
         descriptionEdit.setText(task.description)
 
@@ -158,10 +184,11 @@ class TodoListDetailActivity : AppCompatActivity() {
             .show()
     }
 
+    // Show confirmation before deleting a task
     private fun showDeleteTaskDialog(task: TodoItem) {
         AlertDialog.Builder(getDialogContext())
             .setTitle("Delete Task")
-            .setMessage("Are you sure you want to delete this task?")
+            .setMessage("Are you sure you want to delete '${task.title}'?")
             .setPositiveButton("Yes") { _, _ ->
                 viewModel.deleteTask(task)
             }
@@ -169,6 +196,7 @@ class TodoListDetailActivity : AppCompatActivity() {
             .show()
     }
 
+    // Handle clicks on the action bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
             onBackPressedDispatcher.onBackPressed()

@@ -4,9 +4,9 @@ import android.content.Context
 import android.widget.Toast
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.auth.FirebaseAuth
-import lk.kdu.ac.mc.todolistapp.datasource.database.TodoDatabase
-import lk.kdu.ac.mc.todolistapp.datasource.database.entities.TodoEntry
-import lk.kdu.ac.mc.todolistapp.data.models.TodoList
+import lk.kdu.ac.mc.todolistapp.data.database.AppDatabase
+import lk.kdu.ac.mc.todolistapp.data.database.entities.TodoItemEntity
+import lk.kdu.ac.mc.todolistapp.data.database.entities.TodoListEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,13 +34,13 @@ class FirebaseBackup {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val todoDao = TodoDatabase.getDatabase(context).todoDao()
-                val allItems = mutableListOf<TodoEntry>()
+                val todoDao = AppDatabase.getDatabase(context).todoListDao()
+                val allItems = mutableListOf<TodoItemEntity>()
 
                 // Get all lists and items
                 val lists = todoDao.getAllLists().value ?: emptyList()
-                lists.forEach { list: TodoList ->
-                    val items = todoDao.getItemsByListId(list.id).value ?: emptyList()
+                lists.forEach { list: TodoListEntity ->
+                    val items = todoDao.getTasksForList(list.id).value ?: emptyList()
                     allItems.addAll(items)
                 }
 
@@ -93,7 +93,7 @@ class FirebaseBackup {
                 if (snapshot.exists()) {
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
-                            val todoDao = TodoDatabase.getDatabase(context).todoDao()
+                            val todoDao = AppDatabase.getDatabase(context).todoListDao()
 
                             // Parse backup data
                             val listsData = snapshot.child("lists").children
@@ -104,26 +104,28 @@ class FirebaseBackup {
                                 val title = listSnapshot.child("title").getValue(String::class.java) ?: ""
                                 val createdAt = listSnapshot.child("createdAt").getValue(Long::class.java) ?: System.currentTimeMillis()
 
-                                val todoList = TodoList(title = title, createdAt = createdAt)
-                                todoDao.insertList(todoList)
+                                val todoList = TodoListEntity(title = title, createdAt = createdAt)
+                                todoDao.insert(todoList)
                             }
 
                             // Restore items
                             itemsData.forEach { itemSnapshot ->
                                 val listId = itemSnapshot.child("listId").getValue(Long::class.java) ?: 0L
+                                val title = itemSnapshot.child("title").getValue(String::class.java) ?: ""
                                 val description = itemSnapshot.child("description").getValue(String::class.java) ?: ""
                                 val isCompleted = itemSnapshot.child("isCompleted").getValue(Boolean::class.java) ?: false
                                 val position = itemSnapshot.child("position").getValue(Int::class.java) ?: 0
                                 val createdAt = itemSnapshot.child("createdAt").getValue(Long::class.java) ?: System.currentTimeMillis()
 
-                                val todoEntry = TodoEntry(
+                                val todoItem = TodoItemEntity(
                                     listId = listId,
+                                    title = title,
                                     description = description,
                                     isCompleted = isCompleted,
                                     position = position,
                                     createdAt = createdAt
                                 )
-                                todoDao.insertItem(todoEntry)
+                                todoDao.insertTask(todoItem)
                             }
 
                             withContext(Dispatchers.Main) {
